@@ -1,25 +1,48 @@
 import numpy as np
 from typing import Tuple, Dict, Any
 
-class Grid:
-    def __init__(self, height: int, width: int, config: Dict[str, Any] = None):
-        # 0 = libre, 1 = muro, 2 = meta
-        self.height = height
-        self.width = width
-        self.grid = np.zeros((height, width), dtype=int)
-        if config:
-            self.load_config(config)
+class cell:
+    """
+    Class that represents a cell in the grid.
+    """
 
-    def load_config(self, cfg: Dict[str, Any]):
-        # Carga muros, start, goal y reglas dinámicas desde JSON
-        for y, x in cfg.get("walls", []):
-            self.grid[y, x] = 1
-        gy, gx = cfg.get("goal", (self.height-1, self.width-1))
-        self.grid[gy, gx] = 2
-        # Guarda reglas dinámicas en self.dynamic_rules...
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+        self.visited = False
+        self.walls = [True, True, True, True]  # Top, Right, Bottom, Left
+
+    def __repr__(self):
+        return f"cell({self.x}, {self.y})"
+    def __str__(self):
+        return f"cell({self.x}, {self.y})"
+
+    def is_wall(self, direction: str) -> bool:
+        """
+        Check if the cell has a wall in the given direction.
+        """
+        directions = {'top': 0, 'right': 1, 'bottom': 2, 'left': 3}
+        return self.walls[directions[direction]]
     
-    def random_toggle_wall(self):
-        # Ejemplo: invierte el estado de una celda aleatoria
-        i, j = np.random.randint(0, self.height), np.random.randint(0, self.width)
-        if self.grid[i, j] in (0, 1):
-            self.grid[i, j] = 1 - self.grid[i, j]
+    def is_cheese(self) -> bool:
+        """
+        Check if the cell is cheese.
+        """
+        return self.cheese
+    
+    def set_cheese(self, cheese: bool):
+        """
+        Set the cell as cheese.
+        """
+        self.cheese = cheese
+        """
+        Set the cell as cheese.
+        """ 
+    
+    def position(self) -> Tuple[int, int]:
+        """
+        Get the position of the cell.
+        """
+        return (self.x, self.y)
+    
+    

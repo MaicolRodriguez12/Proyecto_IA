@@ -5,7 +5,7 @@
 
 import json
 from laberinto.grid import Grid
-from agente.agente import Agent
+from agent.dynamicAgent import Agent
 
 def main():
     # 1. Cargar configuración
