@@ -1,25 +1,31 @@
-import numpy as np
-from typing import Tuple, Dict, Any
+import networkx as nx
 
 class Grid:
-    def __init__(self, height: int, width: int, config: Dict[str, Any] = None):
-        # 0 = libre, 1 = muro, 2 = meta
-        self.height = height
-        self.width = width
-        self.grid = np.zeros((height, width), dtype=int)
-        if config:
-            self.load_config(config)
+    def __init__(self, rows, columns):
+        self.rows = rows
+        self.columns = columns
+        self.graph = nx.grid_2d_graph(rows, columns)
 
-    def load_config(self, cfg: Dict[str, Any]):
-        # Carga muros, start, goal y reglas dinámicas desde JSON
-        for y, x in cfg.get("walls", []):
-            self.grid[y, x] = 1
-        gy, gx = cfg.get("goal", (self.height-1, self.width-1))
-        self.grid[gy, gx] = 2
-        # Guarda reglas dinámicas en self.dynamic_rules...
+    def show_nodes(self):
+        return list(self.graph.nodes)
     
-    def random_toggle_wall(self):
-        # Ejemplo: invierte el estado de una celda aleatoria
-        i, j = np.random.randint(0, self.height), np.random.randint(0, self.width)
-        if self.grid[i, j] in (0, 1):
-            self.grid[i, j] = 1 - self.grid[i, j]
+    def show_neighbors(self, node):
+        if node in self.graph:
+            return list(self.graph.neighbors(node))
+        else:
+            return []
+
+    def lock_cell(self, node):
+        if node in self.graph:
+            neighbors = list(self.graph.neighbors(node))
+            for neighbor in neighbors:
+                self.graph.remove_edge(node, neighbor)
+
+    def delete_connection(self, node1, node2):
+        if self.graph.has_edge(node1, node2):
+            self.graph.remove_edge(node1, node2)
+
+    def add_connection(self, node1, node2):
+        if node1 in self.graph and node2 in self.graph:
+            self.graph.add_edge(node1, node2)
+
