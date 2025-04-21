@@ -4,7 +4,7 @@ import random
 from grid import Grid  
 
 TAM_CELDA = 60
-MARGEN = 7
+MARGEN = 4
 COLOR_FONDO = (255, 255, 255)
 COLOR_AGENT = (144, 238, 144)
 COLOR_OBJETIVO = (255, 255, 102)
@@ -87,101 +87,124 @@ def menu():
         pygame.draw.rect(pantalla, (100, 200, 100), boton_rect)
         pantalla.blit(fuente.render("Iniciar", True, (255, 255, 255)), (boton_rect.x + 33, boton_rect.y + 13))
 
+
+
         pygame.display.flip()
         reloj.tick(30)
 
-rows, columns, obstaculos = menu()
+def juego():
+
+    rows, columns, obstaculos = menu()
 
 
-lab = Grid(rows, columns)
+    lab = Grid(rows, columns)
 
-total_celdas = [(r, c) for r in range(rows) for c in range(columns)]
+    total_celdas = [(r, c) for r in range(rows) for c in range(columns)]
 
-# Elegir 1 agente, 1 objetivo y 5 paredes (sin repetidos)
-aleatorias = random.sample(total_celdas, 2 + obstaculos)  # agente, objetivo + obstáculos
-agente_pos = aleatorias[0]
-objetivo = aleatorias[1]
-paredes = aleatorias[2:]
+    # Elegir 1 agente, 1 objetivo y 5 paredes (sin repetidos)
+    aleatorias = random.sample(total_celdas, 2 + obstaculos)  # agente, objetivo + obstáculos
+    agente_pos = aleatorias[0]
+    objetivo = aleatorias[1]
+    paredes = aleatorias[2:]
 
-# Asignar posición inicial del agente
-agente = list(agente_pos)
+    # Asignar posición inicial del agente
+    agente = list(agente_pos)
 
-# Bloquear celdas
-for p in paredes:
-    lab.lock_cell(p)
+    # Bloquear celdas
+    for p in paredes:
+        lab.lock_cell(p)
 
 
-# Inicializar Pygame
-pygame.init()
-ventana = pygame.display.set_mode((columns * TAM_CELDA, rows * TAM_CELDA))
-pygame.display.set_caption("Laberinto Dinámico")
-reloj = pygame.time.Clock()
+    # Inicializar Pygame
+    pygame.init()
+    ventana = pygame.display.set_mode((columns * TAM_CELDA, rows * TAM_CELDA))
+    pygame.display.set_caption("Laberinto Dinámico")
+    reloj = pygame.time.Clock()
 
-def mover_agente(dx, dy):
-    nueva_pos = (agente[0] + dy, agente[1] + dx)
+    
+    imagen_agente = pygame.image.load("raton.png")
+    imagen_agente = pygame.transform.scale(imagen_agente, (TAM_CELDA - 2 * MARGEN, TAM_CELDA - 2 * MARGEN))
 
-    # Validar que esté dentro del laberinto
-    if 0 <= nueva_pos[0] < rows and 0 <= nueva_pos[1] < columns:
-        # Validar que hay conexión en el grafo
-        if nueva_pos in lab.show_neighbors(tuple(agente)):
-            print(f"Moviendo agente a {nueva_pos}")
-            agente[0] += dy
-            agente[1] += dx
+    imagen_meta = pygame.image.load("queso.png")
+    imagen_meta = pygame.transform.scale(imagen_meta, (TAM_CELDA - 2 * MARGEN, TAM_CELDA - 2 * MARGEN))
+
+    def mover_agente(dx, dy):
+        nueva_pos = (agente[0] + dy, agente[1] + dx)
+
+        # Validar que esté dentro del laberinto
+        if 0 <= nueva_pos[0] < rows and 0 <= nueva_pos[1] < columns:
+            # Validar que hay conexión en el grafo
+            if nueva_pos in lab.show_neighbors(tuple(agente)):
+                print(f"Moviendo agente a {nueva_pos}")
+                agente[0] += dy
+                agente[1] += dx
+            else:
+                print(f"Movimiento bloqueado hacia {nueva_pos}")
         else:
-            print(f"Movimiento bloqueado hacia {nueva_pos}")
-    else:
-        print(f"Movimiento fuera de límites hacia {nueva_pos}")
+            print(f"Movimiento fuera de límites hacia {nueva_pos}")
 
-def dibujar_rejilla(surface):
-    for fila in range(rows + 1):
-        y = fila * TAM_CELDA
-        pygame.draw.line(surface, (200, 200, 200), (0, y), (columns * TAM_CELDA, y), 1)
-    for col in range(columns + 1):
-        x = col * TAM_CELDA
-        pygame.draw.line(surface, (200, 200, 200), (x, 0), (x, rows * TAM_CELDA), 1)
+    def dibujar_rejilla(surface):
+        for fila in range(rows + 1):
+            y = fila * TAM_CELDA
+            pygame.draw.line(surface, (200, 200, 200), (0, y), (columns * TAM_CELDA, y), 1)
+        for col in range(columns + 1):
+            x = col * TAM_CELDA
+            pygame.draw.line(surface, (200, 200, 200), (x, 0), (x, rows * TAM_CELDA), 1)
 
 
-ejecutando = True
-while ejecutando:
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
+    ejecutando = True
+    while ejecutando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                ejecutando = False
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_UP:
+                    mover_agente(0, -1)
+                elif evento.key == pygame.K_DOWN:
+                    mover_agente(0, 1)
+                elif evento.key == pygame.K_LEFT:
+                    mover_agente(-1, 0)
+                elif evento.key == pygame.K_RIGHT:
+                    mover_agente(1, 0)
+
+        ventana.fill(COLOR_FONDO)
+
+        # Dibuja las celdas
+        for fila in range(rows):
+            for col in range(columns):
+                x = col * TAM_CELDA + MARGEN
+                y = fila * TAM_CELDA + MARGEN
+                celda = (fila, col)
+
+                if celda == tuple(agente):
+                     ventana.blit(imagen_agente, (x, y))
+                elif celda == objetivo:
+                    ventana.blit(imagen_meta, (x, y))
+                elif len(lab.show_neighbors(celda)) == 0:
+                    pygame.draw.rect(ventana, COLOR_PARED,
+                             (x, y, TAM_CELDA - 2 * MARGEN, TAM_CELDA - 2 * MARGEN))
+                else:
+                     pygame.draw.rect(ventana, COLOR_FONDO,
+                             (x, y, TAM_CELDA - 2 * MARGEN, TAM_CELDA - 2 * MARGEN))
+
+
+        # Dibuja la rejilla encima
+        dibujar_rejilla(ventana)
+
+        if tuple(agente) == objetivo:
+            fuente = pygame.font.Font(None, 72)
+            texto = fuente.render("¡Ganaste!", True, (0, 128, 0))
+            ventana.blit(texto, (ventana.get_width() // 2 - texto.get_width() // 2,
+                                ventana.get_height() // 2 - texto.get_height() // 2))
+            pygame.display.flip()
+            pygame.time.delay(2000)  # Mostrar el mensaje por 3 segundos
             ejecutando = False
-        elif evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_UP:
-                mover_agente(0, -1)
-            elif evento.key == pygame.K_DOWN:
-                mover_agente(0, 1)
-            elif evento.key == pygame.K_LEFT:
-                mover_agente(-1, 0)
-            elif evento.key == pygame.K_RIGHT:
-                mover_agente(1, 0)
 
-    ventana.fill(COLOR_FONDO)
+        pygame.display.flip()
+        reloj.tick(30)
 
-    # Dibuja las celdas
-    for fila in range(rows):
-        for col in range(columns):
-            celda = (fila, col)
-            color = COLOR_FONDO
-
-            if celda == tuple(agente):
-                color = COLOR_AGENT
-            elif celda == objetivo:
-                color = COLOR_OBJETIVO
-            elif len(lab.show_neighbors(celda)) == 0:
-                color = COLOR_PARED
-
-            pygame.draw.rect(ventana, color,
-                             (col * TAM_CELDA + MARGEN,
-                              fila * TAM_CELDA + MARGEN,
-                              TAM_CELDA - 2 * MARGEN,
-                              TAM_CELDA - 2 * MARGEN))
-
-    # Dibuja la rejilla encima
-    dibujar_rejilla(ventana)
-
-    pygame.display.flip()
-    reloj.tick(30)
+while True:
+    juego()
 
 pygame.quit()
 sys.exit()
