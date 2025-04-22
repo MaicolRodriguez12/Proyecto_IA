@@ -1,32 +1,24 @@
-# author: Yeifer Ronaldo Muñoz Valencia
-
+from .SearchAlgorithm import SearchAlgorithm
 import heapq
 
-class UCS:
-    def __init__(self, grid):
-        self.grid = grid
-
+class UCS(SearchAlgorithm):
     def find_path(self, start, goal):
-        priority_queue = []
-        heapq.heappush(priority_queue, (0, start, [start]))  # (costo acumulado, posición, camino)
-        visited = {}  # Guarda el mejor costo para cada posición
-
-        while priority_queue:
-            current_cost, current_pos, path = heapq.heappop(priority_queue)
-
-            if current_pos == goal:
-                return path
-
-            if current_pos in visited and visited[current_pos] <= current_cost:
-                continue  # Ya existe un camino más barato
-            visited[current_pos] = current_cost
-
-            for neighbor in self.get_neighbors(current_pos):
-                cell = self.grid.cells[neighbor[0]][neighbor[1]]
-                if cell.is_wall:
-                    continue  # Ignorar paredes
-                new_cost = current_cost + cell.cost
-                new_path = path + [neighbor]
-                heapq.heappush(priority_queue, (new_cost, neighbor, new_path))
-
+        open_list = []
+        heapq.heappush(open_list, (0, start))
+        g_cost = {start: 0}
+        came_from = {}
+        while open_list:
+            cost, current = heapq.heappop(open_list)
+            if current == goal:
+                path = [goal]
+                while path[-1] in came_from:
+                    path.append(came_from[path[-1]])
+                return list(reversed(path))
+            for neigh in self.get_neighbors(current):
+                cell = self.grid.get_cell(neigh)
+                new_cost = g_cost[current] + cell.cost
+                if neigh not in g_cost or new_cost < g_cost[neigh]:
+                    g_cost[neigh] = new_cost
+                    came_from[neigh] = current
+                    heapq.heappush(open_list, (new_cost, neigh))
         return None
