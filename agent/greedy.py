@@ -1,9 +1,9 @@
 # author: Yeifer Ronaldo Muñoz Valencia
 
 import heapq
-from laberinto.grid import Grid
+from agent.SearchAlgorithm import SearchAlgorithm
 
-class Greedy:
+class Greedy(SearchAlgorithm):
     def __init__(self, grid):
         self.grid = grid
 
