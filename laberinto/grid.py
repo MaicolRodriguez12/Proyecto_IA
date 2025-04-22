@@ -1,4 +1,5 @@
 import networkx as nx
+from typing import Tuple
 
 
 class cell:
