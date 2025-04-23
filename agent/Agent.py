@@ -7,12 +7,12 @@ from agent.greedy import Greedy
 class Agent:
     def __init__(self, grid, algorithm="A*"):
         self.grid = grid
-        self.algorithm = algorithm  # Opciones: "BFS", "DFS", "A*", "UCS"
-        self.path = []              # Camino precalculado
-        self.current_step = 0       # Paso actual en el camino
+        self.algorithm = algorithm
+        self.path = []               # Camino precalculado
+        self.current_step = 0        # Paso actual en el camino
+        self.explored = []           # Celdas recorridas incluso si no se encuentra camino
 
     def set_algorithm(self, algorithm):
-        """Cambia el algoritmo (usado antes de iniciar la búsqueda)"""
         self.algorithm = algorithm
 
     def find_path(self, start, goal):
@@ -27,10 +27,11 @@ class Agent:
         else:  # A*
             searcher = AStar(self.grid)
 
-        self.path = searcher.find_path(start, goal)
-        self.current_step = 0
+        result = searcher.find_path(start, goal)
+        self.path = result if result else []
+        self.explored = getattr(searcher, "explored_cells", [])  # Guardar celdas exploradas si no hay camino
 
-            # Guardar info de pasos y costo si el algoritmo lo provee
+        self.current_step = 0
         self.total_steps = len(self.path) - 1 if self.path else 0
         self.total_cost = getattr(searcher, "final_cost", 0)
 
@@ -43,29 +44,39 @@ class Agent:
             "A*": AStar(self.grid)
         }
 
-        best_path = None
+        best_path = []
         best_cost = float("inf")
         best_algo = None
+        best_explored = []
 
         for name, algo in algorithms.items():
-            path = algo.find_path(start, goal)
+            result = algo.find_path(start, goal)
+            path = result if result else []
+            explored = getattr(algo, "explored_cells", [])
+
             if path:
                 cost = getattr(algo, "final_cost", len(path) - 1)
                 if cost < best_cost:
                     best_cost = cost
                     best_path = path
                     best_algo = name
+                    best_explored = explored
 
         self.path = best_path
-        self.algorithm = best_algo
+        self.algorithm = best_algo if best_algo else self.algorithm
+        self.explored = best_explored
         self.total_steps = len(best_path) - 1 if best_path else 0
         self.total_cost = best_cost
         self.current_step = 0
 
     def get_next_move(self):
-        """Devuelve la siguiente posición en el camino precalculado"""
-        if self.current_step < len(self.path):
+        """Devuelve la siguiente posición en el camino o celdas exploradas si no hay camino"""
+        if self.path and self.current_step < len(self.path):
             next_pos = self.path[self.current_step]
+            self.current_step += 1
+            return next_pos
+        elif not self.path and self.current_step < len(self.explored):
+            next_pos = self.explored[self.current_step]
             self.current_step += 1
             return next_pos
         return None
