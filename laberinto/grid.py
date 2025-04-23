@@ -24,6 +24,14 @@ class Grid:
 
     def get_neighbors(self, coord: Tuple[int,int]):
         return list(self.graph.neighbors(coord))
+    
+    def get_weighted_neighbors(self, coord):
+        neighbors = []
+        for n in self.graph.neighbors(coord):
+            trap_type = self.get_cell(n).trap_type
+            cost = {'gato': 5, 'ratonera': 3, '': 1}.get(trap_type, 1)
+            neighbors.append((n, cost))
+        return neighbors
 
     def set_wall(self, coord: Tuple[int,int], direction: str, value: bool):
         cell = self.get_cell(coord)
