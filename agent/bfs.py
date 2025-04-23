@@ -3,16 +3,24 @@ from .SearchAlgorithm import SearchAlgorithm
 
 # Implementación de búsqueda por amplitud (BFS)
 class BFS(SearchAlgorithm):
+    def __init__(self, grid):
+        super().__init__(grid)
+        self.explored_cells = []  # Lista de celdas que se recorren
+
     def find_path(self, start, goal):
         queue = deque([(start, [start], 0)])  # (posición, camino, costo acumulado)
         self.visited.clear()
-        
-        while queue:
-            current_pos, path, total_cost = queue.popleft()  # Desempaquetar todo en una sola llamada
+        self.explored_cells.clear()
 
-            # Llamar a make_traversed para marcar la celda recorrida con el color azul claro para BFS
+        while queue:
+            current_pos, path, total_cost = queue.popleft()
+
+            # Marcar la celda como recorrida (visual)
             current_cell = self.grid.get_cell(current_pos)
             current_cell.make_traversed((135, 206, 250))  # Azul claro para BFS
+
+            # Guardar la celda como explorada
+            self.explored_cells.append(current_pos)
 
             if current_pos == goal:
                 self.final_cost = total_cost
@@ -23,4 +31,5 @@ class BFS(SearchAlgorithm):
                     self.visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor], total_cost + move_cost))
 
-        return None  # No hay camino
+        # No se encontró un camino
+        return None
