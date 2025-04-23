@@ -7,6 +7,7 @@
 from laberinto.Box import menu, setup_board, COLOR_FONDO, COLOR_PARED, MARGIN
 from agent.Agent import Agent
 import pygame
+import sys
 
 def juego():
     rows, cols, modo = menu()
@@ -36,9 +37,16 @@ def juego():
     agent.find_best_path(ag, go)
 
     if not agent.path: 
-        sfc=pygame.display.get_surface(); sfc.fill(COLOR_FONDO); f=pygame.font.Font(None,42)
-        t=f.render('No hay camino, ESC para reiniciar',True,(255,0,0)); sfc.blit(t,(ox,10)); pygame.display.flip(); pygame.time.delay(5000);
-    cur=list(ag); last=pygame.time.get_ticks()
+        sfc = pygame.display.get_surface()
+        sfc.fill(COLOR_FONDO)
+        f = pygame.font.Font(None, 42)
+        t = f.render('No hay camino, ESC para reiniciar', True, (255, 0, 0))
+        sfc.blit(t, (ox, 10))
+        pygame.display.flip()
+        pygame.time.delay(5000)
+
+    cur = list(ag)
+    last = pygame.time.get_ticks()
 
     while True:
         for e in pygame.event.get():
@@ -71,8 +79,9 @@ def juego():
                     sfc.blit(img_cat, (x, y))  # Mostrar el gato
                 elif not lab.get_neighbors((r, c)):  # Si no tiene vecinos, es una pared
                     pygame.draw.rect(sfc, COLOR_PARED, (x, y, cs - 2 * MARGIN, cs - 2 * MARGIN))
+                
                 # Procesar las celdas recorridas
-                if (r, c) in traversed_cells and (r, c) != tuple(cur):
+                if (r, c) in traversed_cells and (r, c) != tuple(cur) and (r, c) != tuple(ag):  # Excluir la celda inicial
                     traversed_cell = lab.get_cell((r, c))
                     # Verificación de color antes de dibujar
                     if isinstance(traversed_cell.traversed_color, tuple) and len(traversed_cell.traversed_color) == 3:
