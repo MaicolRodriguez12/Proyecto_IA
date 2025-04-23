@@ -8,15 +8,11 @@ class BFS(SearchAlgorithm):
         self.visited.clear()
         
         while queue:
-
-            current_pos, path = queue.popleft()
+            current_pos, path, total_cost = queue.popleft()  # Desempaquetar todo en una sola llamada
 
             # Llamar a make_traversed para marcar la celda recorrida con el color azul claro para BFS
             current_cell = self.grid.get_cell(current_pos)
             current_cell.make_traversed((135, 206, 250))  # Azul claro para BFS
-
-
-            current_pos, path, total_cost = queue.popleft()
 
             if current_pos == goal:
                 self.final_cost = total_cost
@@ -27,6 +23,4 @@ class BFS(SearchAlgorithm):
                     self.visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor], total_cost + move_cost))
 
-
         return None  # No hay camino
-
