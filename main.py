@@ -2,28 +2,40 @@
 #Autores: Yeifer Ronaldo Muñoz Valencia
 #         Juan Carlos Rojas Quintero
 #         Michael Steven Rodriguez Arana
+from laberinto.Box import menu, setup_board, COLOR_FONDO, COLOR_PARED, MARGIN
+from agent.Agent import Agent
+import pygame
 
-import json
-from laberinto.grid import Grid
-from agent.dynamicAgent import AgentDynamic as Agent
+
+def juego():
+    rows,cols=menu(); lab,ag,go,cs,ox,oy,img_a,img_g,img_rat,img_cat=setup_board(rows,cols)
+    agent=Agent(lab,'A*'); agent.find_path(ag,go)
+    if not agent.path: 
+        sfc=pygame.display.get_surface(); sfc.fill(COLOR_FONDO); f=pygame.font.Font(None,42)
+        t=f.render('No hay camino, ESC para reiniciar',True,(255,0,0)); sfc.blit(t,(ox,10)); pygame.display.flip(); pygame.time.delay(5000);
+    cur=list(ag); last=pygame.time.get_ticks()
+    while True:
+        for e in pygame.event.get():
+            if e.type==pygame.QUIT or (e.type==pygame.KEYDOWN and e.key==pygame.K_ESCAPE): return
+        now=pygame.time.get_ticks()
+        if now-last>=500 and agent.path: nxt=agent.get_next_move(); cur=list(nxt) if nxt else cur; last=now
+        sfc=pygame.display.get_surface(); sfc.fill(COLOR_FONDO)
+        for r in range(rows):
+            for c in range(cols):
+                x=ox+c*cs+MARGIN; y=oy+r*cs+MARGIN; cell=lab.get_cell((r,c))
+                if (r,c)==tuple(cur): sfc.blit(img_a,(x,y))
+                elif (r,c)==go: sfc.blit(img_g,(x,y))
+                elif cell.trap_type=='ratonera': sfc.blit(img_rat,(x,y))
+                elif cell.trap_type=='gato': sfc.blit(img_cat,(x,y))
+                elif not lab.get_neighbors((r,c)): pygame.draw.rect(sfc,COLOR_PARED,(x,y,cs-2*MARGIN,cs-2*MARGIN))
+        for i in range(rows+1): pygame.draw.line(sfc,(200,200,200),(ox,oy+i*cs),(ox+cols*cs,oy+i*cs))
+        for j in range(cols+1): pygame.draw.line(sfc,(200,200,200),(ox+j*cs,oy),(ox+j*cs,oy+rows*cs))
+        if tuple(cur)==go:
+            f=pygame.font.Font(None,42); t=f.render('¡Amigo el raton del queso!',True,(0,128,0)); sfc.blit(t,(ox,10)); pygame.display.flip(); pygame.time.delay(5000); break
+        pygame.display.flip(); pygame.time.delay(100)
 
 def main():
-    # 1. Cargar configuración
-    with open("configs/ejemplo1.json") as f:
-        cfg = json.load(f)
+    while True: juego()
+    pygame.quit(); sys.exit()
 
-    # 2. Inicializar grid y agente
-    grid_obj = Grid(cfg["height"], cfg["width"], config=cfg)
-    start = tuple(cfg.get("start", (0,0)))
-    goal = tuple(cfg.get("goal", (cfg["height"]-1, cfg["width"]-1)))
-    agent = Agent(grid_obj.grid, start, goal)
-
-    # 3. Bucle de prueba sin gráfica
-    for step in range(10):
-        grid_obj.random_toggle_wall()    # simulamos cambio
-        agent.graph = agent._build_graph()
-        path = agent.compute_bfs()
-        print(f"Step {step}: Path length = {len(path) if path else 'No path'}")
-
-if __name__ == "__main__":
-    main()
+if __name__=='__main__': main()

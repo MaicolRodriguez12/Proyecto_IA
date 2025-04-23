@@ -39,3 +39,7 @@ class Grid:
     def lock_cell(self, coord: Tuple[int,int]):
         for d in ['top','right','bottom','left']:
             self.set_wall(coord, d, True)
+    
+    def set_trap(self, coord: Tuple[int,int], trap_type: str):
+        cell = self.get_cell(coord)
+        cell.set_trap(trap_type)
