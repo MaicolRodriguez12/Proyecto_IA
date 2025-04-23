@@ -1,13 +1,13 @@
+# dynamic.py
 import pygame
 import sys
-import random
-from .grid import Grid 
+from .grid import Grid
 from agent.Agent import Agent
 
-TAM_CELDA = 60
-MARGEN = 4
+# Colores y márgenes\
 COLOR_FONDO = (255, 255, 255)
 COLOR_PARED = (100, 100, 100)
+MARGIN = 2
 
 class Box:
     def __init__(self, x, y, w, h, text=''):
@@ -16,7 +16,7 @@ class Box:
         self.color_active = pygame.Color('dodgerblue2')
         self.color = self.color_inactive
         self.text = text
-        self.txt_surface = pygame.font.Font(None, 36).render(text, True, self.color)
+        self.txt_surface = pygame.font.Font(None, 36).render(text, True, (0, 0, 0))
         self.active = False
 
     def handle_event(self, event):
@@ -43,115 +43,173 @@ class Box:
 
 def menu():
     pygame.init()
-    pantalla = pygame.display.set_mode((500, 400))
-    pygame.display.set_caption("LABERINTO DINÁMICO")
-    fuente = pygame.font.Font(None, 36)
+    screen = pygame.display.set_mode((500, 200))
+    pygame.display.set_caption("Configurar Tablero")
+    font = pygame.font.Font(None, 36)
 
-    input_rows = Box(200, 50, 100, 40)
-    input_columns = Box(200, 120, 100, 40)
-    input_obstaculos = Box(200, 190, 100, 40)
-    input_boxes = [input_rows, input_columns, input_obstaculos]
-    boton_rect = pygame.Rect(180, 270, 140, 50)
-    reloj = pygame.time.Clock()
+    box_rows = Box(200, 50, 100, 40)
+    box_cols = Box(200, 110, 100, 40)
+    btn = pygame.Rect(180, 160, 140, 30)
+    clock = pygame.time.Clock()
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            for box in input_boxes:
-                box.handle_event(event)
-            if event.type == pygame.MOUSEBUTTONDOWN and boton_rect.collidepoint(event.pos):
-                rows = input_rows.get_value()
-                columns = input_columns.get_value()
-                obstaculos = input_obstaculos.get_value()
-                total_disponibles = rows * columns - 2
-                if rows > 0 and columns > 0 and 0 <= obstaculos <= total_disponibles:
-                    return rows, columns, obstaculos
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            box_rows.handle_event(e)
+            box_cols.handle_event(e)
+            if e.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(e.pos):
+                r, c = box_rows.get_value(), box_cols.get_value()
+                if r > 0 and c > 0:
+                    return r, c
 
-        pantalla.fill((240, 240, 240))
-        pantalla.blit(fuente.render("Filas:", True, (0, 0, 0)), (40, 60))
-        pantalla.blit(fuente.render("Columnas:", True, (0, 0, 0)), (40, 130))
-        pantalla.blit(fuente.render("Obstáculos:", True, (0, 0, 0)), (40, 200))
-        for box in input_boxes:
-            box.draw(pantalla)
-        pygame.draw.rect(pantalla, (100, 200, 100), boton_rect)
-        pantalla.blit(fuente.render("Iniciar", True, (255, 255, 255)), (boton_rect.x + 33, boton_rect.y + 13))
+        screen.fill((240, 240, 240))
+        screen.blit(font.render("Filas:", True, (0, 0, 0)), (50, 50))
+        screen.blit(font.render("Columnas:", True, (0, 0, 0)), (50, 110))
+        box_rows.draw(screen)
+        box_cols.draw(screen)
+        pygame.draw.rect(screen, (100, 200, 100), btn)
+        screen.blit(font.render("Siguiente", True, (255, 255, 255)), (btn.x + 20, btn.y + 5))
         pygame.display.flip()
-        reloj.tick(30)
+        clock.tick(30)
+
+
+def setup_board(rows, cols):
+    win_w, win_h = 800, 600
+    pygame.display.set_mode((win_w, win_h))
+    pygame.display.set_caption("Editar Tablero: arrastra ratón/queso, clic para muros, ENTER para iniciar")
+    clock = pygame.time.Clock()
+    lab = Grid(rows, cols)
+
+    grid_w = win_w - 100
+    grid_h = win_h - 50
+    cell_size = min(grid_w // cols, grid_h // rows)
+    offset_x = (win_w - cell_size * cols) // 2
+    offset_y = (win_h - cell_size * rows) // 2
+
+    img_agent = pygame.transform.scale(pygame.image.load("raton.png"), (cell_size-2*MARGIN, cell_size-2*MARGIN))
+    img_goal  = pygame.transform.scale(pygame.image.load("queso.png"), (cell_size-2*MARGIN, cell_size-2*MARGIN))
+
+    agent_pos = (0, 0)
+    goal_pos = (rows-1, cols-1)
+    rect_agent = img_agent.get_rect(topleft=(offset_x, offset_y))
+    rect_goal  = img_goal.get_rect(topleft=(offset_x+(cols-1)*cell_size, offset_y+(rows-1)*cell_size))
+    dragging = None
+
+    while True:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                if rect_agent.collidepoint(e.pos):
+                    dragging = 'agent'
+                elif rect_goal.collidepoint(e.pos):
+                    dragging = 'goal'
+                else:
+                    mx, my = e.pos
+                    c = (mx - offset_x) // cell_size
+                    r = (my - offset_y) // cell_size
+                    if 0 <= r < rows and 0 <= c < cols:
+                        if lab.get_neighbors((r,c)):
+                            lab.lock_cell((r,c))
+                        else:
+                            for d in ['top','right','bottom','left']:
+                                lab.set_wall((r,c), d, False)
+            elif e.type == pygame.MOUSEBUTTONUP:
+                dragging = None
+            elif e.type == pygame.MOUSEMOTION and dragging:
+                mx, my = e.pos
+                c = (mx - offset_x) // cell_size
+                r = (my - offset_y) // cell_size
+                if 0 <= r < rows and 0 <= c < cols:
+                    if dragging == 'agent':
+                        agent_pos = (r, c)
+                        rect_agent.topleft = (offset_x + c*cell_size, offset_y + r*cell_size)
+                    else:
+                        goal_pos = (r, c)
+                        rect_goal.topleft = (offset_x + c*cell_size, offset_y + r*cell_size)
+            elif e.type == pygame.KEYDOWN and e.key == pygame.K_RETURN:
+                return lab, agent_pos, goal_pos, cell_size, offset_x, offset_y, img_agent, img_goal
+
+        screen = pygame.display.get_surface()
+        screen.fill(COLOR_FONDO)
+        for r in range(rows):
+            for c in range(cols):
+                x = offset_x + c * cell_size + MARGIN
+                y = offset_y + r * cell_size + MARGIN
+                if not lab.get_neighbors((r,c)):
+                    pygame.draw.rect(screen, COLOR_PARED, (x, y, cell_size-2*MARGIN, cell_size-2*MARGIN))
+        screen.blit(img_agent, rect_agent)
+        screen.blit(img_goal, rect_goal)
+        # líneas horizontales corregidas
+        for i in range(rows+1):
+            pygame.draw.line(screen, (200,200,200), (offset_x, offset_y + i*cell_size),
+                             (offset_x + cols*cell_size, offset_y + i*cell_size))
+        # líneas verticales
+        for j in range(cols+1):
+            pygame.draw.line(screen, (200,200,200), (offset_x + j*cell_size, offset_y),
+                             (offset_x + j*cell_size, offset_y + rows*cell_size))
+
+        pygame.display.flip()
+        clock.tick(60)
 
 
 def juego():
-    rows, columns, obstaculos = menu()
-    lab = Grid(rows, columns)
-    total_celdas = [(r, c) for r in range(rows) for c in range(columns)]
-    aleatorias = random.sample(total_celdas, 2 + obstaculos)
-    agente_pos, objetivo = aleatorias[0], aleatorias[1]
-    for p in aleatorias[2:]:
-        lab.lock_cell(p)
+    rows, cols = menu()
+    lab, agent_pos, goal_pos, cell_size, off_x, off_y, img_agent, img_goal = setup_board(rows, cols)
 
-    # Instanciar agente y calcular ruta
     agent = Agent(lab, algorithm="A*")
-    agent.find_path(agente_pos, objetivo)
-    agente = list(agente_pos)
+    agent.find_path(agent_pos, goal_pos)
+    if not agent.path:
+        pygame.display.set_caption("No hay ruta al queso. Reinicia (ESC).")
+    current = list(agent_pos)
+    last = pygame.time.get_ticks()
 
-    pygame.init()
-    ventana = pygame.display.set_mode((columns * TAM_CELDA, rows * TAM_CELDA))
-    pygame.display.set_caption("Laberinto Dinámico")
-    reloj = pygame.time.Clock()
-    img_agent = pygame.transform.scale(pygame.image.load("raton.png"), (TAM_CELDA - 2*MARGEN, TAM_CELDA - 2*MARGEN))
-    img_goal = pygame.transform.scale(pygame.image.load("queso.png"), (TAM_CELDA - 2*MARGEN, TAM_CELDA - 2*MARGEN))
-    tiempo_ultimo_movimiento = 0  # Definir fuera del bucle principal
-    intervalo_movimiento = 500  # 500ms
-    
-    while True:
-        tiempo_actual = pygame.time.get_ticks()
-
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
+    running = True
+    while running:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
                 return
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                return
+        now = pygame.time.get_ticks()
+        if now - last >= 500 and agent.path:
+            nxt = agent.get_next_move()
+            if nxt:
+                current = list(nxt)
+            last = now
 
-        if tiempo_actual - tiempo_ultimo_movimiento >= intervalo_movimiento:
-            next_pos = agent.get_next_move()
-            if next_pos is not None:
-                agente[0], agente[1] = next_pos
-            tiempo_ultimo_movimiento = tiempo_actual
+        screen = pygame.display.get_surface()
+        screen.fill(COLOR_FONDO)
+        for r in range(rows):
+            for c in range(cols):
+                x = off_x + c * cell_size + MARGIN
+                y = off_y + r * cell_size + MARGIN
+                if (r,c) == tuple(current):
+                    screen.blit(img_agent, (x, y))
+                elif (r,c) == goal_pos:
+                    screen.blit(img_goal, (x, y))
+                elif not lab.get_neighbors((r,c)):
+                    pygame.draw.rect(screen, COLOR_PARED, (x, y, cell_size-2*MARGIN, cell_size-2*MARGIN))
+        # líneas horizontales de simulación
+        for i in range(rows+1):
+            pygame.draw.line(screen, (200,200,200), (off_x, off_y + i*cell_size),
+                             (off_x + cols*cell_size, off_y + i*cell_size))
+        # líneas verticales de simulación
+        for j in range(cols+1):
+            pygame.draw.line(screen, (200,200,200), (off_x + j*cell_size, off_y),
+                             (off_x + j*cell_size, off_y + rows*cell_size))
 
-        # Intentar mover al agente si han pasado al menos 500ms
-        if tiempo_actual - tiempo_ultimo_movimiento >= intervalo_movimiento:
-            next_pos = agent.get_next_move()
-            if next_pos is not None:
-                agente[0], agente[1] = next_pos
-                tiempo_ultimo_movimiento = tiempo_actual  # solo actualizamos si realmente se mueve
-
-        # Dibujado
-        ventana.fill(COLOR_FONDO)
-        for fila in range(rows):
-            for col in range(columns):
-                x, y = col*TAM_CELDA+MARGEN, fila*TAM_CELDA+MARGEN
-                celda = (fila, col)
-                if celda == tuple(agente):
-                    ventana.blit(img_agent, (x, y))
-                elif celda == objetivo:
-                    ventana.blit(img_goal, (x, y))
-                elif not lab.get_neighbors(celda):
-                    pygame.draw.rect(ventana, COLOR_PARED, (x, y, TAM_CELDA-2*MARGEN, TAM_CELDA-2*MARGEN))
-
-        for f in range(rows+1):
-            pygame.draw.line(ventana, (200,200,200), (0,f*TAM_CELDA),(columns*TAM_CELDA,f*TAM_CELDA),1)
-        for c in range(columns+1):
-            pygame.draw.line(ventana, (200,200,200), (c*TAM_CELDA,0),(c*TAM_CELDA,rows*TAM_CELDA),1)
-
-        if tuple(agente) == objetivo:
-            fuente = pygame.font.Font(None,72)
-            texto = fuente.render("¡Ganaste!", True, (0,128,0))
-            ventana.blit(texto, (ventana.get_width()//2 - texto.get_width()//2,
-                                 ventana.get_height()//2 - texto.get_height()//2))
+        if tuple(current) == goal_pos:
+            font = pygame.font.Font(None, 72)
+            text = font.render("¡Llegaste al queso!", True, (0, 128, 0))
+            screen.blit(text, (off_x, 10))
             pygame.display.flip()
             pygame.time.delay(2000)
+            break
 
         pygame.display.flip()
-        reloj.tick(60)
+        pygame.time.delay(100)
 
 
 def main():
