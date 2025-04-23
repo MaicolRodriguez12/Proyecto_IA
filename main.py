@@ -33,6 +33,13 @@ def juego():
         for j in range(cols+1): pygame.draw.line(sfc,(200,200,200),(ox+j*cs,oy),(ox+j*cs,oy+rows*cs))
         if tuple(cur)==go:
             f=pygame.font.Font(None,42); t=f.render('¡Amigo el raton del queso!',True,(0,128,0)); sfc.blit(t,(ox,10)); pygame.display.flip(); pygame.time.delay(5000); break
+        
+        font = pygame.font.Font(None, 36)
+        texto_pasos = font.render(f"Pasos: {agent.total_steps}", True, (0, 0, 0))
+        texto_costo = font.render(f"Costo total: {agent.total_cost}", True, (0, 0, 0))
+        sfc.blit(texto_pasos, (ox, oy + rows * cs + 10))
+        sfc.blit(texto_costo, (ox + 200, oy + rows * cs + 10))
+
         pygame.display.flip(); pygame.time.delay(100)
 
 def main():
