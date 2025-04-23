@@ -25,18 +25,26 @@ class UCS(SearchAlgorithm):
             cell.make_traversed((255, 105, 180)) 
 
             if current == goal:
+                self.final_cost = g_cost[current]
                 path = [goal]
                 while path[-1] in came_from:
                     path.append(came_from[path[-1]])
                 self.final_cost = cost
                 return list(reversed(path))
 
+
             for neigh in self.grid.get_neighbors(current):
                 cell = self.grid.get_cell(neigh)
                 new_cost = g_cost[current] + cell.cost
+
+            for neigh, move_cost in self.grid.get_weighted_neighbors(current):
+                new_cost = g_cost[current] + move_cost
+
                 if neigh not in g_cost or new_cost < g_cost[neigh]:
                     g_cost[neigh] = new_cost
                     came_from[neigh] = current
                     heapq.heappush(open_list, (new_cost, neigh))
 
+
         return None
+

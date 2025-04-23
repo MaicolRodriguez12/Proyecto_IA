@@ -34,6 +34,33 @@ class Agent:
         self.total_steps = len(self.path) - 1 if self.path else 0
         self.total_cost = getattr(searcher, "final_cost", 0)
 
+    def find_best_path(self, start, goal):
+        algorithms = {
+            "BFS": BFS(self.grid),
+            "DFS": DFS(self.grid),
+            "UCS": UCS(self.grid),
+            "Greedy": Greedy(self.grid),
+            "A*": AStar(self.grid)
+        }
+
+        best_path = None
+        best_cost = float("inf")
+        best_algo = None
+
+        for name, algo in algorithms.items():
+            path = algo.find_path(start, goal)
+            if path:
+                cost = getattr(algo, "final_cost", len(path) - 1)
+                if cost < best_cost:
+                    best_cost = cost
+                    best_path = path
+                    best_algo = name
+
+        self.path = best_path
+        self.algorithm = best_algo
+        self.total_steps = len(best_path) - 1 if best_path else 0
+        self.total_cost = best_cost
+        self.current_step = 0
 
     def get_next_move(self):
         """Devuelve la siguiente posición en el camino precalculado"""

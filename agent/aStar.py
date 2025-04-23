@@ -45,9 +45,15 @@ class AStar(SearchAlgorithm):
                 if cell.is_wall('top'):
                     pass
                 tentative_g = g_cost[current] + cell.cost
+
+            for neighbor, move_cost in self.grid.get_weighted_neighbors(current):
+                tentative_g = g_cost[current] + move_cost
+
                 if neighbor not in g_cost or tentative_g < g_cost[neighbor]:
                     came_from[neighbor] = current
                     g_cost[neighbor] = tentative_g
                     f_cost = tentative_g + self.heuristic(neighbor, goal)
                     heapq.heappush(open_list, (f_cost, neighbor))
+            
         return None
+
