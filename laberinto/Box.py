@@ -103,7 +103,7 @@ def menu():
 
 
 def setup_board(rows, cols, modo):
-    win = (500,500)
+    win = (700,700)
     pygame.display.set_mode(win)
     pygame.display.set_caption('Editar: clic muros, SHIFT+clic ratonera, CTRL+clic gato, arrastrar, ENTER')
     clk = pygame.time.Clock()
