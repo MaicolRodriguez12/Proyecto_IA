@@ -2,13 +2,14 @@
 #Autores: Yeifer Ronaldo Muñoz Valencia
 #         Juan Carlos Rojas Quintero
 #         Michael Steven Rodriguez Arana
+
 from laberinto.Box import menu, setup_board, COLOR_FONDO, COLOR_PARED, MARGIN
 from agent.Agent import Agent
 import pygame
 
-
 def juego():
-    rows,cols=menu(); lab,ag,go,cs,ox,oy,img_a,img_g,img_rat,img_cat=setup_board(rows,cols)
+    rows, cols, modo = menu()
+    lab, ag, go, cs, ox, oy, img_a, img_g, img_rat, img_cat = setup_board(rows, cols, modo)
     agent=Agent(lab,'A*'); agent.find_path(ag,go)
     if not agent.path: 
         sfc=pygame.display.get_surface(); sfc.fill(COLOR_FONDO); f=pygame.font.Font(None,42)

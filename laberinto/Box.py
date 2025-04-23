@@ -2,6 +2,7 @@
 import pygame
 import sys
 from .grid import Grid
+import random
 
 #importar las imágenes de los gatos y ratoneras
 gato = "sources/gato.png"
@@ -52,13 +53,18 @@ class Box:
 
 def menu():
     pygame.init()
-    screen = pygame.display.set_mode((500, 200))
+    screen = pygame.display.set_mode((500, 350))
     pygame.display.set_caption("Configurar Tablero")
     font = pygame.font.Font(None, 36)
 
     box_rows = Box(200, 50, 100, 40)
     box_cols = Box(200, 110, 100, 40)
-    btn = pygame.Rect(180, 160, 140, 30)
+    btn = pygame.Rect(180, 270, 110, 30)
+
+    manual_button = pygame.Rect(50, 210, 140, 30)
+    random_button = pygame.Rect(260, 210, 140, 30)
+    modo = "manual"
+
     clock = pygame.time.Clock()
 
     while True:
@@ -68,25 +74,40 @@ def menu():
                 sys.exit()
             box_rows.handle_event(e)
             box_cols.handle_event(e)
-            if e.type == pygame.MOUSEBUTTONDOWN and btn.collidepoint(e.pos):
-                r, c = box_rows.get_value(), box_cols.get_value()
-                if r > 0 and c > 0:
-                    return r, c
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                if manual_button.collidepoint(e.pos):
+                    modo = "manual"
+                elif random_button.collidepoint(e.pos):
+                    modo = "random"
+                elif btn.collidepoint(e.pos):
+                    r, c = box_rows.get_value(), box_cols.get_value()
+                    if r > 0 and c > 0:
+                        return r, c, modo
 
         screen.fill((240, 240, 240))
         screen.blit(font.render("Filas:", True, (0, 0, 0)), (50, 50))
         screen.blit(font.render("Columnas:", True, (0, 0, 0)), (50, 110))
+        screen.blit(font.render("Modo obstáculos:", True, (0, 0, 0)), (50, 170))
         box_rows.draw(screen)
         box_cols.draw(screen)
+
+        pygame.draw.rect(screen, (0, 150, 255) if modo == "manual" else (200, 200, 200), manual_button)
+        pygame.draw.rect(screen, (0, 150, 255) if modo == "random" else (200, 200, 200), random_button)
+        screen.blit(font.render("Manual", True, (0, 0, 0)), (manual_button.x + 19, manual_button.y + 2))
+        screen.blit(font.render("Aleatorio", True, (0, 0, 0)), (random_button.x + 19, random_button.y + 2))
+
         pygame.draw.rect(screen, (100, 200, 100), btn)
-        screen.blit(font.render("Siguiente", True, (255, 255, 255)), (btn.x + 20, btn.y + 5))
+        screen.blit(font.render("Jugar", True, (255, 255, 255)), (btn.x + 20, btn.y + 3))
         pygame.display.flip()
         clock.tick(30)
 
 
-def setup_board(rows,cols):
-    win=(800,600); pygame.display.set_mode(win); pygame.display.set_caption('Editar: clic muros, SHIFT+clic ratonera, CTRL+clic gato, arrastrar, ENTER')
-    clk=pygame.time.Clock(); lab=Grid(rows,cols)
+def setup_board(rows, cols, modo):
+    win = (800, 600)
+    pygame.display.set_mode(win)
+    pygame.display.set_caption('Editar: clic muros, SHIFT+clic ratonera, CTRL+clic gato, arrastrar, ENTER')
+    clk = pygame.time.Clock()
+    lab = Grid(rows, cols)
     cell_size=min((win[0]-100)//cols,(win[1]-50)//rows)
     ox=(win[0]-cell_size*cols)//2; oy=(win[1]-cell_size*rows)//2
     img_agent=pygame.transform.scale(pygame.image.load(raton),(cell_size-2*MARGIN,cell_size-2*MARGIN))
@@ -96,6 +117,20 @@ def setup_board(rows,cols):
     agent=(0,0); goal=(rows-1,cols-1)
     rect_a=img_agent.get_rect(topleft=(ox,oy)); rect_g=img_goal.get_rect(topleft=(ox+(cols-1)*cell_size,oy+(rows-1)*cell_size))
     drag=None
+
+    if modo == 'random':
+        for _ in range((rows * cols) // 6):  # Ajusta densidad como quieras
+            r, c = random.randint(0, rows-1), random.randint(0, cols-1)
+            if (r, c) not in [(0,0), (rows-1, cols-1)]:
+                if random.random() < 0.3:
+                    lab.set_trap((r,c), 'ratonera')
+                elif random.random() < 0.6:
+                    lab.set_trap((r,c), 'gato')
+                else:
+                    lab.lock_cell((r,c))
+        return lab, agent, goal, cell_size, ox, oy, img_agent, img_goal, img_rat, img_cat
+
+
     while True:
         for e in pygame.event.get():
             if e.type==pygame.QUIT: pygame.quit(); sys.exit()
