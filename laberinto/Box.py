@@ -3,6 +3,15 @@ import pygame
 import sys
 from .grid import Grid
 
+#importar las imágenes de los gatos y ratoneras
+gato = "sources/gato.png"
+ratonera = "sources/ratonera.png"
+queso = "sources/queso.png"
+raton = "sources/raton.png"
+
+
+# Definir la clase Grid
+
 # Colores y márgenes\
 COLOR_FONDO = (255, 255, 255)
 COLOR_PARED = (100, 100, 100)
@@ -80,10 +89,10 @@ def setup_board(rows,cols):
     clk=pygame.time.Clock(); lab=Grid(rows,cols)
     cell_size=min((win[0]-100)//cols,(win[1]-50)//rows)
     ox=(win[0]-cell_size*cols)//2; oy=(win[1]-cell_size*rows)//2
-    img_agent=pygame.transform.scale(pygame.image.load('raton.png'),(cell_size-2*MARGIN,cell_size-2*MARGIN))
-    img_goal=pygame.transform.scale(pygame.image.load('queso.png'),(cell_size-2*MARGIN,cell_size-2*MARGIN))
-    img_rat=pygame.transform.scale(pygame.image.load('ratonera.png'),(cell_size-2*MARGIN,cell_size-2*MARGIN))
-    img_cat=pygame.transform.scale(pygame.image.load('gato.png'),(cell_size-2*MARGIN,cell_size-2*MARGIN))
+    img_agent=pygame.transform.scale(pygame.image.load(raton),(cell_size-2*MARGIN,cell_size-2*MARGIN))
+    img_goal=pygame.transform.scale(pygame.image.load(queso),(cell_size-2*MARGIN,cell_size-2*MARGIN))
+    img_rat=pygame.transform.scale(pygame.image.load(ratonera),(cell_size-2*MARGIN,cell_size-2*MARGIN))
+    img_cat=pygame.transform.scale(pygame.image.load(gato),(cell_size-2*MARGIN,cell_size-2*MARGIN))
     agent=(0,0); goal=(rows-1,cols-1)
     rect_a=img_agent.get_rect(topleft=(ox,oy)); rect_g=img_goal.get_rect(topleft=(ox+(cols-1)*cell_size,oy+(rows-1)*cell_size))
     drag=None
