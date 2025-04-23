@@ -94,6 +94,7 @@ def juego():
     agent = Agent(lab, algorithm="A*")
     agent.find_path(agente_pos, objetivo)
     agente = list(agente_pos)
+    recorrido = [tuple(agente)]  # Guardar posiciones visitadas
 
     pygame.init()
     ventana = pygame.display.set_mode((columns * TAM_CELDA, rows * TAM_CELDA))
@@ -101,9 +102,9 @@ def juego():
     reloj = pygame.time.Clock()
     img_agent = pygame.transform.scale(pygame.image.load("raton.png"), (TAM_CELDA - 2*MARGEN, TAM_CELDA - 2*MARGEN))
     img_goal = pygame.transform.scale(pygame.image.load("queso.png"), (TAM_CELDA - 2*MARGEN, TAM_CELDA - 2*MARGEN))
-    tiempo_ultimo_movimiento = 0  # Definir fuera del bucle principal
-    intervalo_movimiento = 500  # 500ms
-    
+    tiempo_ultimo_movimiento = 0
+    intervalo_movimiento = 500
+
     while True:
         tiempo_actual = pygame.time.get_ticks()
 
@@ -115,14 +116,8 @@ def juego():
             next_pos = agent.get_next_move()
             if next_pos is not None:
                 agente[0], agente[1] = next_pos
-            tiempo_ultimo_movimiento = tiempo_actual
-
-        # Intentar mover al agente si han pasado al menos 500ms
-        if tiempo_actual - tiempo_ultimo_movimiento >= intervalo_movimiento:
-            next_pos = agent.get_next_move()
-            if next_pos is not None:
-                agente[0], agente[1] = next_pos
-                tiempo_ultimo_movimiento = tiempo_actual  # solo actualizamos si realmente se mueve
+                recorrido.append(tuple(agente))
+                tiempo_ultimo_movimiento = tiempo_actual
 
         # Dibujado
         ventana.fill(COLOR_FONDO)
@@ -136,6 +131,8 @@ def juego():
                     ventana.blit(img_goal, (x, y))
                 elif not lab.get_neighbors(celda):
                     pygame.draw.rect(ventana, COLOR_PARED, (x, y, TAM_CELDA-2*MARGEN, TAM_CELDA-2*MARGEN))
+                elif celda in recorrido:
+                    pygame.draw.rect(ventana, (173, 216, 230), (x, y, TAM_CELDA-2*MARGEN, TAM_CELDA-2*MARGEN))  # celeste
 
         for f in range(rows+1):
             pygame.draw.line(ventana, (200,200,200), (0,f*TAM_CELDA),(columns*TAM_CELDA,f*TAM_CELDA),1)
