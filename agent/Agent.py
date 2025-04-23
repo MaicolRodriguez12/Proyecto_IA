@@ -30,6 +30,10 @@ class Agent:
         self.path = searcher.find_path(start, goal)
         self.current_step = 0
 
+            # Guardar info de pasos y costo si el algoritmo lo provee
+        self.total_steps = len(self.path) - 1 if self.path else 0
+        self.total_cost = getattr(searcher, "final_cost", 0)
+
 
     def get_next_move(self):
         """Devuelve la siguiente posición en el camino precalculado"""

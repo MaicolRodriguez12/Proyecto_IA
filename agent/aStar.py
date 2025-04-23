@@ -22,6 +22,7 @@ class AStar(SearchAlgorithm):
         while open_list:
             f_current, current = heapq.heappop(open_list)
             if current == goal:
+                self.final_cost = g_cost[current]
                 return self.reconstruct_path(came_from, current)
             if current in closed_set:
                 continue

@@ -66,7 +66,7 @@ def menu():
     modo = "manual"
 
     clock = pygame.time.Clock()
-
+  
     while True:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -103,7 +103,7 @@ def menu():
 
 
 def setup_board(rows, cols, modo):
-    win = (800, 600)
+    win = (500,500)
     pygame.display.set_mode(win)
     pygame.display.set_caption('Editar: clic muros, SHIFT+clic ratonera, CTRL+clic gato, arrastrar, ENTER')
     clk = pygame.time.Clock()
