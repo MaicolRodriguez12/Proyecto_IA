@@ -1,7 +1,6 @@
-# author: Yeifer Ronaldo Muñoz Valencia
 from collections import deque
 from .SearchAlgorithm import SearchAlgorithm
-    
+
 # Implementación de búsqueda por amplitud (BFS)
 class BFS(SearchAlgorithm):
     def find_path(self, start, goal):
@@ -9,7 +8,16 @@ class BFS(SearchAlgorithm):
         self.visited.clear()
         
         while queue:
+
+            current_pos, path = queue.popleft()
+
+            # Llamar a make_traversed para marcar la celda recorrida con el color azul claro para BFS
+            current_cell = self.grid.get_cell(current_pos)
+            current_cell.make_traversed((135, 206, 250))  # Azul claro para BFS
+
+
             current_pos, path, total_cost = queue.popleft()
+
             if current_pos == goal:
                 self.final_cost = total_cost
                 return path
@@ -19,4 +27,6 @@ class BFS(SearchAlgorithm):
                     self.visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor], total_cost + move_cost))
 
-        return None
+
+        return None  # No hay camino
+

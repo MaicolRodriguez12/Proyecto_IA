@@ -1,4 +1,3 @@
-# cell.py
 from typing import Tuple
 
 class Cell:
@@ -6,17 +5,18 @@ class Cell:
         self.x = x
         self.y = y
         self.visited = False
-        # cambio: uso dict en vez de lista, evita índices mágicos
+        # Cambio: uso dict en vez de lista, evita índices mágicos
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
-        # inicializar atributos faltantes para A*
-        self.base_cost = 1
-       # costo por defecto de la celda
-        self.cheese = False  # si la celda contiene el 'queso'
+        # Inicializar atributos faltantes para A*
+        self.base_cost = 1  # Costo por defecto de la celda
+        self.cheese = False  # Si la celda contiene el 'queso'
         self.trap_type = None
         self.trap_costs = {'ratonera': 3, 'gato': 5}
-        self.is_trap  = False
+        self.is_trap = False
         self.cost = self.base_cost
         self.cheese = False
+        self.is_traversed = False  # Añadido para marcar si la celda ha sido recorrida
+        self.traversed_color = None  # Color que se usará cuando sea recorrida
 
     def __repr__(self):
         return f"Cell({self.x}, {self.y})"
@@ -26,9 +26,9 @@ class Cell:
         return self.walls.get(direction, True)
 
     def set_wall(self, direction: str, value: bool):
-        # mantener sincronizado grafo y walls
+        # Mantener sincronizado grafo y walls
         self.walls[direction] = value
-        # grid tendrá un hook para actualizar el grafo (ver Grid.set_wall)
+        # Grid tendrá un hook para actualizar el grafo (ver Grid.set_wall)
 
     def is_cheese(self) -> bool:
         return self.cheese
@@ -43,7 +43,7 @@ class Cell:
         return (self.x, self.y)
 
     def set_trap(self, trap: str):
-        """Asigna o quita trampa. trap in (None,'ratonera','gato')"""
+        """Asigna o quita trampa. trap in (None, 'ratonera', 'gato')"""
         self.trap_type = trap
         if trap in self.trap_costs:
             self.cost = self.base_cost + self.trap_costs[trap]
@@ -52,3 +52,8 @@ class Cell:
     
     def is_trap(self) -> bool:
         return self.trap_type is not None
+
+    # Nuevo método para marcar la celda como recorrida
+    def make_traversed(self, color):
+        self.traversed_color = color
+        self.is_traversed = True

@@ -1,4 +1,4 @@
-# dynamic.py
+# Box.py
 import pygame
 import sys
 from .grid import Grid
