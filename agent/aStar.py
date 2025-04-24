@@ -6,6 +6,8 @@ class AStar(SearchAlgorithm):
     def __init__(self, grid):
         super().__init__(grid)
         self.final_cost = 0
+        self.explored_cells = []  # <- Guardar las celdas que explora
+
     def heuristic(self, a, b):
         dx = abs(a[0] - b[0])
         dy = abs(a[1] - b[1])
@@ -43,6 +45,7 @@ class AStar(SearchAlgorithm):
         g_cost = {start: 0}
         came_from = {}
         closed_set = set()
+        self.explored_cells.clear()
 
         while open_list:
             f_current, current = heapq.heappop(open_list)
@@ -52,6 +55,21 @@ class AStar(SearchAlgorithm):
             if current in closed_set:
                 continue
             closed_set.add(current)
+
+            # Guardar la celda como explorada
+            self.explored_cells.append(current)
+
+            # Pintar celda recorrida (dorada para A*)
+            cell = self.grid.get_cell(current)
+            if current != start and current != goal:
+                cell.make_traversed((255, 215, 0))  # Dorado para A*
+                pygame.display.update()
+                pygame.time.delay(20)
+
+            if current == goal:
+                self.final_cost = g_cost[current]
+                return self.reconstruct_path(came_from, current)
+
             if getattr(self.grid, 'changed', False):
                 return None
 
@@ -64,3 +82,4 @@ class AStar(SearchAlgorithm):
                     heapq.heappush(open_list, (f_cost, neighbor))
 
         return None
+
