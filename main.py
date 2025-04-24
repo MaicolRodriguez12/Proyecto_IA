@@ -38,7 +38,7 @@ def juego():
     last = pygame.time.get_ticks()
     traversed_cells = set()
 
-    agent = AdaptiveAgent(lab, ag, go)
+    agent = AdaptiveAgent(lab, ag, go, initial_algorithm="A*")
     agent.select_algorithm()
     agent.plan_path()
 
@@ -62,17 +62,17 @@ def juego():
 
         now = pygame.time.get_ticks()
 
-        if contador_iteraciones % 25 == 0:
+        if contador_iteraciones % 5 == 0:
             go = mover_queso(lab, rows, cols, go)
             agent.start = tuple(cur)
             agent.goal = go
             agent.select_algorithm()  # Selecciona el algoritmo adecuado
             agent.plan_path()  # Vuelve a planificar el camino con el nuevo algoritmo
 
-        if contador_iteraciones % 10 == 0:
+        if contador_iteraciones % 3 == 0:
             modificar_obstaculos(lab, rows, cols, cantidad=1)
 
-        if contador_iteraciones % 30 == 0:
+        if contador_iteraciones % 5 == 0:
             eliminar_obstaculos(lab, rows, cols, cantidad=1)
 
         if now - last >= 100:
@@ -139,7 +139,7 @@ def juego():
         sfc.blit(texto_costo, (ox + 200, oy + rows * cs + 10))
 
         pygame.display.flip()
-        pygame.time.delay(20)
+        pygame.time.delay(500)
 
         if tuple(cur) == go:
             f = pygame.font.Font(None, 42)
