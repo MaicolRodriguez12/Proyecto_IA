@@ -3,44 +3,42 @@ import heapq
 
 class UCS(SearchAlgorithm):
     def __init__(self, grid):
-        super().__init__(grid)  # Llamada al constructor de la clase base
-        self.final_cost = 0  # Para mostrar el costo final en la UI (si aplica)
-        self.explored_cells = []  # Para almacenar las celdas exploradas
+        super().__init__(grid)  
+        self.final_cost = 0  
+        self.explored_cells = []  
 
     def find_path(self, start, goal):
         open_list = []
-        heapq.heappush(open_list, (0, start))  # Cola con el costo 0 para empezar
-        g_cost = {start: 0}  # Costo acumulado para cada celda
-        came_from = {}  # Diccionario para reconstruir el camino
+        heapq.heappush(open_list, (0, start))  
+        g_cost = {start: 0}  
+        came_from = {}  
         self.visited.clear()
         self.explored_cells.clear()
 
         while open_list:
-            cost, current = heapq.heappop(open_list)  # Extraer la celda con menor costo
+            cost, current = heapq.heappop(open_list)  
 
             if current in self.visited:
                 continue
             self.visited.add(current)
 
-            # Marcar la celda como recorrida (color rosa)
             cell = self.grid.get_cell(current)
-            cell.make_traversed((255, 105, 180))  # Rosa para UCS
+            cell.make_traversed((255, 105, 180))  
             self.explored_cells.append(current)
 
             if current == goal:
                 self.final_cost = g_cost[current]
                 path = [goal]
                 while path[-1] in came_from:
-                    path.append(came_from[path[-1]])  # Reconstruir el camino
-                return list(reversed(path))  # Devolver el camino desde el inicio al objetivo
+                    path.append(came_from[path[-1]])  
+                return list(reversed(path))  
 
-            # Explorar los vecinos
             for neighbor, move_cost in self.grid.get_weighted_neighbors(current):
-                new_cost = g_cost[current] + move_cost  # Calcular el nuevo costo
+                new_cost = g_cost[current] + move_cost  
 
                 if neighbor not in g_cost or new_cost < g_cost[neighbor]:
                     g_cost[neighbor] = new_cost
                     came_from[neighbor] = current
-                    heapq.heappush(open_list, (new_cost, neighbor))  # Insertar vecino con su costo
+                    heapq.heappush(open_list, (new_cost, neighbor))
 
-        return None  # No se encontró un camino
+        return None 

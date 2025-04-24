@@ -4,16 +4,12 @@ import sys
 from .grid import Grid
 import random
 
-#importar las imágenes de los gatos y ratoneras
 gato = "sources/skinner.png"
 ratonera = "sources/ratonera.png"
 queso = "sources/queso.png"
 raton = "sources/remy.png"
 
 
-# Definir la clase Grid
-
-# Colores y márgenes\
 COLOR_FONDO = (255, 255, 255)
 COLOR_PARED = (100, 100, 100)
 COLOR_TRAP = (255, 100, 100)
