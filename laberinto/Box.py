@@ -5,10 +5,10 @@ from .grid import Grid
 import random
 
 #importar las imágenes de los gatos y ratoneras
-gato = "sources/gato.png"
+gato = "sources/skinner.png"
 ratonera = "sources/ratonera.png"
 queso = "sources/queso.png"
-raton = "sources/raton.png"
+raton = "sources/remy.png"
 
 
 # Definir la clase Grid
@@ -53,19 +53,27 @@ class Box:
 
 def menu():
     pygame.init()
-    screen = pygame.display.set_mode((500, 350))
-    pygame.display.set_caption("Configurar Tablero")
-    font = pygame.font.Font(None, 36)
+    pygame.mixer.init()
+    pygame.mixer.music.load("sources/cancion.mp3")
+    pygame.mixer.music.play(-1)
+    screen = pygame.display.set_mode((900, 650))
+    pygame.display.set_caption("RATARTOUILLE")
+    font = pygame.font.Font("fonts/Nunito-ExtraBold.ttf", 26)
+    font_tittle = pygame.font.Font("fonts/titulo.ttf", 50)
 
-    box_rows = Box(200, 50, 100, 40)
-    box_cols = Box(200, 110, 100, 40)
-    btn = pygame.Rect(180, 270, 110, 30)
+    box_rows = Box(390, 270, 100, 40)
+    box_cols = Box(390, 330, 100, 40)
+    btn = pygame.Rect(380, 510, 115, 35)
 
-    manual_button = pygame.Rect(50, 210, 140, 30)
-    random_button = pygame.Rect(260, 210, 140, 30)
+    manual_button = pygame.Rect(300, 440, 145, 40)
+    random_button = pygame.Rect(460, 440, 145, 40)
+
     modo = "manual"
 
     clock = pygame.time.Clock()
+
+    fondo = pygame.image.load("sources/fondo4.png")
+    fondo = pygame.transform.scale(fondo, (900, 650))
   
     while True:
         for e in pygame.event.get():
@@ -85,19 +93,22 @@ def menu():
                         return r, c, modo
 
         screen.fill((240, 240, 240))
-        screen.blit(font.render("Filas:", True, (0, 0, 0)), (50, 50))
-        screen.blit(font.render("Columnas:", True, (0, 0, 0)), (50, 110))
-        screen.blit(font.render("Modo obstáculos:", True, (0, 0, 0)), (50, 170))
+        screen.blit(fondo, (0, 0))
+        screen.blit(font_tittle.render("Ratón a la Ratatouille", True, (80, 40, 0)), (150, 150))
+        screen.blit(font.render("Elige un tamaño par tu laberinto:", True, (0, 0, 0)), (240, 220))
+        screen.blit(font.render("Filas:", True, (0, 0, 0)), (240, 280))
+        screen.blit(font.render("Columnas:", True, (0, 0, 0)), (240, 340))
+        screen.blit(font.render("Modo obstáculos:", True, (0, 0, 0)), (240, 390))
         box_rows.draw(screen)
         box_cols.draw(screen)
 
-        pygame.draw.rect(screen, (0, 150, 255) if modo == "manual" else (200, 200, 200), manual_button)
-        pygame.draw.rect(screen, (0, 150, 255) if modo == "random" else (200, 200, 200), random_button)
+        pygame.draw.rect(screen, (200, 230, 255) if modo == "manual" else (220, 220, 220), manual_button, border_radius=10)
+        pygame.draw.rect(screen, (200, 230, 255) if modo == "random" else (220, 220, 220), random_button, border_radius=10)
         screen.blit(font.render("Manual", True, (0, 0, 0)), (manual_button.x + 19, manual_button.y + 2))
         screen.blit(font.render("Aleatorio", True, (0, 0, 0)), (random_button.x + 19, random_button.y + 2))
 
-        pygame.draw.rect(screen, (100, 200, 100), btn)
-        screen.blit(font.render("Jugar", True, (255, 255, 255)), (btn.x + 20, btn.y + 3))
+        pygame.draw.rect(screen, (100, 200, 100), btn, border_radius=10)
+        screen.blit(font.render("Jugar", True, (255, 255, 255)), (btn.x + 18, btn.y + 1))
         pygame.display.flip()
         clock.tick(30)
 
