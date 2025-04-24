@@ -14,6 +14,7 @@ class Agent:
         self.stuck_counter = 0             
         self.explored = []           # Celdas recorridas incluso si no se encuentra camino
         self.total_steps = 0         # Asegurarnos de inicializar este atributo
+        print(f"Algoritmo inicial: {self.algorithm}")  # Para depuración
 
     def evaluate_environment(self):
         """Decide el mejor algoritmo basado en el entorno"""
@@ -38,12 +39,15 @@ class Agent:
             if new_strategy != self.current_strategy:
                 print(f"Cambiando estrategia a {new_strategy}")
                 self.current_strategy = new_strategy
+                self.set_algorithm(new_strategy)  # Asegurarse de que se actualice el algoritmo
             self.find_path(self.current_position, self.grid.cheese_position)
             self.grid.changes = False
 
     def set_algorithm(self, algorithm):
         """Establecer el algoritmo actual del agente"""
+        print(f"Algoritmo actualizado a: {algorithm}")  # Para depuración
         self.algorithm = algorithm
+        self.current_strategy = algorithm  # Asegurarse de que el algoritmo y la estrategia coincidan
 
     def find_path(self, start, goal):
         """Encuentra el camino usando el algoritmo seleccionado"""
