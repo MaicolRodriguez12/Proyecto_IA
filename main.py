@@ -13,13 +13,14 @@ def juego():
     rows, cols, modo = menu()
     lab, ag, go, cs, ox, oy, img_a, img_g, img_rat, img_cat = setup_board(rows, cols, modo)
 
-    agent = Agent(lab, 'UCS')
+    """
+    agent1 = Agent(lab, 'UCS')
     
     # Asegurarnos de que la celda inicial se marca como recorrida
     start_cell = lab.get_cell(tuple(ag))
-    agent.find_path(ag, go)
+    agent1.find_path(ag, go)
     
-    if not agent.path:
+    if not agent1.path:
         sfc = pygame.display.get_surface()
         sfc.fill(COLOR_FONDO)
         f = pygame.font.Font(None, 42)
@@ -28,13 +29,15 @@ def juego():
         pygame.display.flip()
         pygame.time.delay(5000)
     
+    """
     cur = list(ag)
     last = pygame.time.get_ticks()
     
     traversed_cells = set()  # Set to store the cells traversed during the search
     
-    agent = Agent(lab)
-    agent.find_best_path(ag, go)
+    agent = Agent(lab, algorithm='A*')
+    agent.find_path(ag, go)
+    #agent.find_best_path(ag, go)
 
     if not agent.path: 
         sfc = pygame.display.get_surface()
@@ -57,7 +60,7 @@ def juego():
         if now - last >= 500 and agent.path:
             nxt = agent.get_next_move()
             cur = list(nxt) if nxt else cur
-            traversed_cells.add(tuple(cur))  # Add current cell to the traversed cells
+            traversed_cells.add(tuple(cur))  
             last = now
         
         sfc = pygame.display.get_surface()

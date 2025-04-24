@@ -17,7 +17,7 @@ class Cell:
         self.cheese = False
         self.is_traversed = False  # Añadido para marcar si la celda ha sido recorrida
         self.traversed_color = None  # Color que se usará cuando sea recorrida
-
+        
     def __repr__(self):
         return f"Cell({self.x}, {self.y})"
     __str__ = __repr__
@@ -28,6 +28,7 @@ class Cell:
     def set_wall(self, direction: str, value: bool):
         # Mantener sincronizado grafo y walls
         self.walls[direction] = value
+
         # Grid tendrá un hook para actualizar el grafo (ver Grid.set_wall)
 
     def is_cheese(self) -> bool:
