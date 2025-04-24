@@ -15,6 +15,10 @@ class AdaptiveAgent:
             "change_counter": 0
         }
         self.plan_path()  # Planificamos el camino inicial
+        self.visited_cells = []
+        self.traversal_cost = 0
+
+
 
     def plan_path(self):
         import time
@@ -26,12 +30,25 @@ class AdaptiveAgent:
         self.metrics["cost_history"].append(self.agent.total_cost)
 
     def get_next_move(self):
-        return self.agent.get_next_move()
+        next_pos = self.agent.get_next_move()
+        if next_pos:
+            self.visited_cells.append(next_pos)  # Siempre añadimos la celda, incluso si ya fue visitada
+
+            # Obtener el tipo de trampa y sumar su costo
+            trap_type = self.laberinto.get_cell(next_pos).trap_type
+            cost = {'gato': 5, 'ratonera': 3, '': 1}.get(trap_type, 1)
+            self.traversal_cost += cost
+        return next_pos
+
 
     def select_algorithm(self):
         self.evaluate_algorithm()
 
     def evaluate_algorithm(self):
+        print("\n--- Evaluación de algoritmo ---")
+        print(f"Algoritmo actual: {self.current_algorithm}")
+        print(f"Pasos actuales: {self.agent.total_steps}")
+        print(f"Costo total actual: {self.agent.total_cost}")
     # Calculamos las puntuaciones para los cinco algoritmos
         scores = {
             "A*": self.calculate_astar_score(),
