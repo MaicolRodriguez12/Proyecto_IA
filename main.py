@@ -131,8 +131,8 @@ def juego():
             pygame.draw.line(sfc, (200, 200, 200), (ox + j * cs, oy), (ox + j * cs, oy + rows * cs))
 
         font = pygame.font.Font(None, 36)
-        texto_pasos = font.render(f"Pasos: {agent.total_steps}", True, (0, 0, 0))
-        texto_costo = font.render(f"Costo total: {agent.total_cost}", True, (0, 0, 0))
+        texto_pasos = font.render(f"Pasos: {len(agent.visited_cells)}", True, (0, 0, 0))
+        texto_costo = font.render(f"Costo total: {agent.traversal_cost}", True, (0, 0, 0))
         texto_algoritmo = font.render(f"Algoritmo: {agent.algorithm}", True, (0, 0, 0))
         sfc.blit(texto_algoritmo, (ox + 400, oy + rows * cs + 10))
         sfc.blit(texto_pasos, (ox, oy + rows * cs + 10))
