@@ -35,9 +35,25 @@ def eliminar_obstaculos(laberinto, rows, cols, cantidad=1):
 def juego():
     rows, cols, modo = menu()
     lab, ag, go, cs, ox, oy, img_a, img_g, img_rat, img_cat = setup_board(rows, cols, modo)
-
-    agent = Agent(lab, 'BFS')
+    cur = list(ag)
+    last = pygame.time.get_ticks()
+    
+    traversed_cells = set()  # Set to store the cells traversed during the search
+    
+    agent = Agent(lab, algorithm='A*')
     agent.find_path(ag, go)
+    #agent.find_best_path(ag, go)
+
+    if not agent.path: 
+        sfc = pygame.display.get_surface()
+        sfc.fill(COLOR_FONDO)
+        f = pygame.font.Font(None, 42)
+        t = f.render('No hay camino, ESC para reiniciar', True, (255, 0, 0))
+        sfc.blit(t, (ox, 10))
+        pygame.display.flip()
+        pygame.time.delay(5000)
+
+
 
     cur = list(ag)
     last = pygame.time.get_ticks()
@@ -69,6 +85,10 @@ def juego():
         # Reducir la frecuencia de actualización para que el ratón se mueva más rápido
         if now - last >= 100:  # Reduce de 500 a 100 milisegundos (o incluso menos)
             nxt = agent.get_next_move()
+
+            cur = list(nxt) if nxt else cur
+            traversed_cells.add(tuple(cur))  
+
             if nxt:
                 cur = list(nxt)
                 traversed_cells.add(tuple(cur))

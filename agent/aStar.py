@@ -5,10 +5,32 @@ from agent.SearchAlgorithm import SearchAlgorithm
 class AStar(SearchAlgorithm):
     def __init__(self, grid):
         super().__init__(grid)
+        self.final_cost = 0
         self.explored_cells = []  # <- Guardar las celdas que explora
 
     def heuristic(self, a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        dx = abs(a[0] - b[0])
+        dy = abs(a[1] - b[1])
+        base_h = dx + dy
+        penalty = 0
+        search_radius = 2
+
+        step_x = 1 if b[0] > a[0] else -1 if b[0] < a[0] else 0
+        step_y = 1 if b[1] > a[1] else -1 if b[1] < a[1] else 0
+
+        for i in range(-search_radius, search_radius + 1):
+            for j in range(-search_radius, search_radius + 1):
+                x_coord = a[0] + i * step_x
+                y_coord = a[1] + j * step_y
+
+                if 0 <= x_coord < self.grid.rows and 0 <= y_coord < self.grid.columns:
+                    cell = self.grid.get_cell((x_coord, y_coord))  # Tupla como argumento
+                    if cell.cost > 1:
+                        distance = (i**2 + j**2)**0.5
+                        penalty += (cell.cost * 0.15) / (distance + 1)
+
+        return base_h + penalty
+
 
     def reconstruct_path(self, came_from, current):
         path = [current]
@@ -27,7 +49,9 @@ class AStar(SearchAlgorithm):
 
         while open_list:
             f_current, current = heapq.heappop(open_list)
-
+            if current == goal:
+                self.final_cost = g_cost[current]
+                return self.reconstruct_path(came_from, current)
             if current in closed_set:
                 continue
             closed_set.add(current)
@@ -51,12 +75,11 @@ class AStar(SearchAlgorithm):
 
             for neighbor, move_cost in self.grid.get_weighted_neighbors(current):
                 tentative_g = g_cost[current] + move_cost
-
                 if neighbor not in g_cost or tentative_g < g_cost[neighbor]:
                     came_from[neighbor] = current
                     g_cost[neighbor] = tentative_g
                     f_cost = tentative_g + self.heuristic(neighbor, goal)
                     heapq.heappush(open_list, (f_cost, neighbor))
 
-        # Si no hay camino, simplemente retorna None (las celdas exploradas ya fueron guardadas)
         return None
+

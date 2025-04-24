@@ -12,9 +12,9 @@ class Cell:
         self.trap_costs = {'ratonera': 3, 'gato': 5}
         self.is_trap = False
         self.cost = self.base_cost
-        self.is_traversed = False
-        self.traversed_color = None
-
+        self.is_traversed = False  # Añadido para marcar si la celda ha sido recorrida
+        self.traversed_color = None  # Color que se usará cuando sea recorrida
+        
     def __repr__(self):
         return f"Cell({self.x}, {self.y})"
     __str__ = __repr__

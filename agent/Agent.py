@@ -7,10 +7,40 @@ from agent.greedy import Greedy
 class Agent:
     def __init__(self, grid, algorithm="A*"):
         self.grid = grid
-        self.algorithm = algorithm
-        self.path = []               # Camino precalculado
-        self.current_step = 0        # Paso actual en el camino
+        self.algorithm = algorithm  # Opciones: "BFS", "DFS", "A*", "UCS"
+        self.path = []              # Camino precalculado
+        self.current_step = 0  
+        self.current_strategy = algorithm   # Paso actual en el camino
+        self.stuck_counter = 0             
         self.explored = []           # Celdas recorridas incluso si no se encuentra camino
+
+
+    def evaluate_environment(self):
+        """Decide el mejor algoritmo basado en el entorno"""
+        # Condición 1: Queso móvil
+        if self.grid.cheese_moves > 2:
+            return 'A*'
+        
+        # Condición 2: Muchos obstáculos
+        if self.grid.traps / (self.grid.rows * self.grid.columns) > 0.3:
+            return 'BFS'
+        
+        # Condición 3: Costos altos
+        if self.grid.get_average_cost() > 2.5:
+            return 'UCS'
+        
+        return self.current_strategy  # Mantener estrategia actual
+
+    def replanify(self):
+        """Reinicia la búsqueda si hay cambios"""
+        if self.grid.changes:
+            new_strategy = self.evaluate_environment()
+            if new_strategy != self.current_strategy:
+                print(f"Cambiando estrategia a {new_strategy}")
+                self.current_strategy = new_strategy
+            self.find_path(self.current_position, self.grid.cheese_position)
+            self.grid.changes = False
+
 
     def set_algorithm(self, algorithm):
         self.algorithm = algorithm
@@ -35,6 +65,7 @@ class Agent:
         self.total_steps = len(self.path) - 1 if self.path else 0
         self.total_cost = getattr(searcher, "final_cost", 0)
 
+    """
     def find_best_path(self, start, goal):
         algorithms = {
             "BFS": BFS(self.grid),
@@ -68,6 +99,7 @@ class Agent:
         self.total_steps = len(best_path) - 1 if best_path else 0
         self.total_cost = best_cost
         self.current_step = 0
+    """
 
     def get_next_move(self):
         """Devuelve la siguiente posición en el camino o celdas exploradas si no hay camino"""
