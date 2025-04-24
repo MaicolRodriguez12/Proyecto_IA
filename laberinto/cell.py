@@ -5,18 +5,15 @@ class Cell:
         self.x = x
         self.y = y
         self.visited = False
-        # Cambio: uso dict en vez de lista, evita índices mágicos
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
-        # Inicializar atributos faltantes para A*
-        self.base_cost = 1  # Costo por defecto de la celda
-        self.cheese = False  # Si la celda contiene el 'queso'
+        self.base_cost = 1
+        self.cheese = False
         self.trap_type = None
         self.trap_costs = {'ratonera': 3, 'gato': 5}
         self.is_trap = False
         self.cost = self.base_cost
-        self.cheese = False
-        self.is_traversed = False  # Añadido para marcar si la celda ha sido recorrida
-        self.traversed_color = None  # Color que se usará cuando sea recorrida
+        self.is_traversed = False
+        self.traversed_color = None
 
     def __repr__(self):
         return f"Cell({self.x}, {self.y})"
@@ -26,9 +23,7 @@ class Cell:
         return self.walls.get(direction, True)
 
     def set_wall(self, direction: str, value: bool):
-        # Mantener sincronizado grafo y walls
         self.walls[direction] = value
-        # Grid tendrá un hook para actualizar el grafo (ver Grid.set_wall)
 
     def is_cheese(self) -> bool:
         return self.cheese
@@ -50,10 +45,16 @@ class Cell:
         else:
             self.cost = self.base_cost
     
+    def remove_trap(self):
+        """Elimina cualquier trampa de la celda."""
+        self.trap_type = None
+        self.cost = self.base_cost
+    
     def is_trap(self) -> bool:
         return self.trap_type is not None
 
-    # Nuevo método para marcar la celda como recorrida
+    # Método para marcar la celda como recorrida
     def make_traversed(self, color):
         self.traversed_color = color
         self.is_traversed = True
+
