@@ -13,7 +13,7 @@ class Agent:
         self.current_strategy = algorithm   # Paso actual en el camino
         self.stuck_counter = 0             
         self.explored = []           # Celdas recorridas incluso si no se encuentra camino
-
+        self.total_steps = 0         # Asegurarnos de inicializar este atributo
 
     def evaluate_environment(self):
         """Decide el mejor algoritmo basado en el entorno"""
@@ -41,11 +41,12 @@ class Agent:
             self.find_path(self.current_position, self.grid.cheese_position)
             self.grid.changes = False
 
-
     def set_algorithm(self, algorithm):
+        """Establecer el algoritmo actual del agente"""
         self.algorithm = algorithm
 
     def find_path(self, start, goal):
+        """Encuentra el camino usando el algoritmo seleccionado"""
         if self.algorithm == "BFS":
             searcher = BFS(self.grid)
         elif self.algorithm == "DFS":
@@ -64,42 +65,6 @@ class Agent:
         self.current_step = 0
         self.total_steps = len(self.path) - 1 if self.path else 0
         self.total_cost = getattr(searcher, "final_cost", 0)
-
-    """
-    def find_best_path(self, start, goal):
-        algorithms = {
-            "BFS": BFS(self.grid),
-            "DFS": DFS(self.grid),
-            "UCS": UCS(self.grid),
-            "Greedy": Greedy(self.grid),
-            "A*": AStar(self.grid)
-        }
-
-        best_path = []
-        best_cost = float("inf")
-        best_algo = None
-        best_explored = []
-
-        for name, algo in algorithms.items():
-            result = algo.find_path(start, goal)
-            path = result if result else []
-            explored = getattr(algo, "explored_cells", [])
-
-            if path:
-                cost = getattr(algo, "final_cost", len(path) - 1)
-                if cost < best_cost:
-                    best_cost = cost
-                    best_path = path
-                    best_algo = name
-                    best_explored = explored
-
-        self.path = best_path
-        self.algorithm = best_algo if best_algo else self.algorithm
-        self.explored = best_explored
-        self.total_steps = len(best_path) - 1 if best_path else 0
-        self.total_cost = best_cost
-        self.current_step = 0
-    """
 
     def get_next_move(self):
         """Devuelve la siguiente posición en el camino o celdas exploradas si no hay camino"""
