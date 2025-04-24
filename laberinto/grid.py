@@ -4,9 +4,9 @@ from typing import Tuple
 
 class Grid:
     def __init__(self, rows: int, columns: int):
-        self.traps = 0 #num trampas
+        self.traps = 0 
         self.changed = False
-        self.walls = 0 #num paredes
+        self.walls = 0 
         self.rows = rows
         self.columns = columns
         self.graph = nx.Graph()

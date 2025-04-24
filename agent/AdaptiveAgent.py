@@ -6,7 +6,7 @@ class AdaptiveAgent:
         self.start = start
         self.goal = goal
         self.current_algorithm = initial_algorithm
-        self.algorithms = ["A*", "UCS", "BFS", "Greedy", "DFS"]  # Añadimos Greedy y DFS
+        self.algorithms = ["A*", "UCS", "BFS", "Greedy", "DFS"] 
         self.agent = Agent(self.laberinto, self.current_algorithm)
         self.metrics = {
             "replan_time": 0,
@@ -14,11 +14,9 @@ class AdaptiveAgent:
             "cost_history": [],
             "change_counter": 0
         }
-        self.plan_path()  # Planificamos el camino inicial
+        self.plan_path() 
         self.visited_cells = []
         self.traversal_cost = 0
-
-
 
     def plan_path(self):
         import time
@@ -32,9 +30,8 @@ class AdaptiveAgent:
     def get_next_move(self):
         next_pos = self.agent.get_next_move()
         if next_pos:
-            self.visited_cells.append(next_pos)  # Siempre añadimos la celda, incluso si ya fue visitada
+            self.visited_cells.append(next_pos)
 
-            # Obtener el tipo de trampa y sumar su costo
             trap_type = self.laberinto.get_cell(next_pos).trap_type
             cost = {'gato': 5, 'ratonera': 3, '': 1}.get(trap_type, 1)
             self.traversal_cost += cost
@@ -57,9 +54,9 @@ class AdaptiveAgent:
             "Greedy": self.calculate_greedy_score(),
             "DFS": self.calculate_dfs_score()
         }
-        print(f"Puntuaciones: {scores}")  # Para depuración
+        print(f"Puntuaciones: {scores}") 
         best_algorithm = max(scores, key=scores.get)
-        print(f"Mejor algoritmo seleccionado: {best_algorithm}")  # Para ver cuál es el seleccionado
+        print(f"Mejor algoritmo seleccionado: {best_algorithm}") 
 
         if scores[best_algorithm] - scores[self.current_algorithm] > 0.0001:
             self.current_algorithm = best_algorithm
@@ -69,34 +66,28 @@ class AdaptiveAgent:
 
 
     def calculate_astar_score(self):
-        # A* se puntúa según el tiempo de recálculo y los pasos recorridos
-        # Si el tiempo de recálculo es bajo y el número de pasos es razonable, el puntaje será alto
-        time_score = max(0, 10 - self.metrics["replan_time"] * 0.1)  # Penalizamos el tiempo de recálculo
-        step_score = max(0, 10 - self.agent.total_steps * 0.05)  # Penalizamos el número de pasos
+        time_score = max(0, 10 - self.metrics["replan_time"] * 0.1) 
+        step_score = max(0, 10 - self.agent.total_steps * 0.05) 
         return time_score + step_score
 
     def calculate_ucs_score(self):
-        # UCS se puntúa por el costo total y el número de pasos
-        cost_score = max(0, 10 - self.agent.total_cost * 0.1)  # Penalizamos costos más altos
-        step_score = max(0, 10 - self.agent.total_steps * 0.05)  # Penalizamos el número de pasos
+        cost_score = max(0, 10 - self.agent.total_cost * 0.1)  
+        step_score = max(0, 10 - self.agent.total_steps * 0.05)  
         return cost_score + step_score
 
     def calculate_bfs_score(self):
-        # BFS se puntúa por el número de nodos bloqueados y los pasos
-        blocked_score = max(0, 10 - self.metrics["blocked_nodes"] * 0.5)  # Penalizamos nodos bloqueados
-        step_score = max(0, 10 - self.agent.total_steps * 0.1)  # Penalizamos el número de pasos
+        blocked_score = max(0, 10 - self.metrics["blocked_nodes"] * 0.5)
+        step_score = max(0, 10 - self.agent.total_steps * 0.1)
         return blocked_score + step_score
 
     def calculate_greedy_score(self):
-        # Greedy se puntúa por el costo total y los nodos bloqueados
-        cost_score = max(0, 10 - self.agent.total_cost * 0.1)  # Penalizamos el costo total
-        blocked_score = max(0, 10 - self.metrics["blocked_nodes"] * 0.5)  # Penalizamos nodos bloqueados
+        cost_score = max(0, 10 - self.agent.total_cost * 0.1) 
+        blocked_score = max(0, 10 - self.metrics["blocked_nodes"] * 0.5)
         return cost_score + blocked_score
 
     def calculate_dfs_score(self):
-        # DFS se puntúa por el número de pasos y el costo total
-        step_score = max(0, 10 - self.agent.total_steps * 0.05)  # Penalizamos el número de pasos
-        cost_score = max(0, 10 - self.agent.total_cost * 0.05)  # Penalizamos costos más altos
+        step_score = max(0, 10 - self.agent.total_steps * 0.05)
+        cost_score = max(0, 10 - self.agent.total_cost * 0.05) 
         return step_score + cost_score
 
 

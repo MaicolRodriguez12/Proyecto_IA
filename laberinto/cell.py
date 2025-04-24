@@ -12,8 +12,8 @@ class Cell:
         self.trap_costs = {'ratonera': 3, 'gato': 5}
         self.is_trap = False
         self.cost = self.base_cost
-        self.is_traversed = False  # Añadido para marcar si la celda ha sido recorrida
-        self.traversed_color = None  # Color que se usará cuando sea recorrida
+        self.is_traversed = False  
+        self.traversed_color = None 
         
     def __repr__(self):
         return f"Cell({self.x}, {self.y})"
@@ -53,7 +53,6 @@ class Cell:
     def is_trap(self) -> bool:
         return self.trap_type is not None
 
-    # Método para marcar la celda como recorrida
     def make_traversed(self, color):
         self.traversed_color = color
         self.is_traversed = True

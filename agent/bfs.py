@@ -1,25 +1,22 @@
 from collections import deque
 from .SearchAlgorithm import SearchAlgorithm
 
-# Implementación de búsqueda por amplitud (BFS)
 class BFS(SearchAlgorithm):
     def __init__(self, grid):
         super().__init__(grid)
-        self.explored_cells = []  # Lista de celdas que se recorren
+        self.explored_cells = [] 
 
     def find_path(self, start, goal):
-        queue = deque([(start, [start], 0)])  # (posición, camino, costo acumulado)
+        queue = deque([(start, [start], 0)])  
         self.visited.clear()
         self.explored_cells.clear()
 
         while queue:
             current_pos, path, total_cost = queue.popleft()
 
-            # Marcar la celda como recorrida (visual)
             current_cell = self.grid.get_cell(current_pos)
-            current_cell.make_traversed((135, 206, 250))  # Azul claro para BFS
+            current_cell.make_traversed((135, 206, 250))  
 
-            # Guardar la celda como explorada
             self.explored_cells.append(current_pos)
 
             if current_pos == goal:
@@ -31,5 +28,4 @@ class BFS(SearchAlgorithm):
                     self.visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor], total_cost + move_cost))
 
-        # No se encontró un camino
         return None

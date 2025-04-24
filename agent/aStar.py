@@ -6,7 +6,7 @@ class AStar(SearchAlgorithm):
     def __init__(self, grid):
         super().__init__(grid)
         self.final_cost = 0
-        self.explored_cells = []  # <- Guardar las celdas que explora
+        self.explored_cells = [] 
 
     def heuristic(self, a, b):
         dx = abs(a[0] - b[0])
@@ -55,11 +55,8 @@ class AStar(SearchAlgorithm):
             if current in closed_set:
                 continue
             closed_set.add(current)
-
-            # Guardar la celda como explorada
             self.explored_cells.append(current)
 
-            # Pintar celda recorrida (dorada para A*)
             cell = self.grid.get_cell(current)
             if current != start and current != goal:
                 cell.make_traversed((255, 215, 0))  # Dorado para A*
